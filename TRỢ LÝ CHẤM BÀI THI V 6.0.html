@@ -1,0 +1,1489 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Trợ Lý Khảo Thí & Chấm Thi AI Đa Lớp</title>
+    <style>
+        :root {
+            --primary: #1e40af;
+            --primary-light: #eff6ff;
+            --danger: #dc2626;
+            --danger-light: #fef2f2;
+            --success: #16a34a;
+            --success-light: #f0fdf4;
+            --warning: #d97706;
+            --warning-light: #fffbeb;
+            --gray-100: #f3f4f6;
+            --gray-200: #e5e7eb;
+            --gray-300: #d1d5db;
+            --gray-600: #4b5563;
+            --gray-800: #0f172a;
+        }
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+            background-color: var(--gray-100);
+            color: var(--gray-800);
+            padding: 16px;
+            line-height: 1.5;
+        }
+        .container {
+            max-width: 1220px;
+            margin: 0 auto;
+            background: #fff;
+            padding: 24px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+            border-top: 6px solid var(--primary);
+        }
+        .header {
+            text-align: center;
+            border-bottom: 2px solid var(--gray-200);
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+        }
+        .header h1 {
+            color: var(--primary);
+            font-size: 24px;
+            font-weight: 800;
+            text-transform: uppercase;
+            margin-bottom: 4px;
+        }
+        .header p { color: var(--gray-600); font-size: 14px; font-weight: 500; }
+
+        .grid-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.45fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+        @media (max-width: 960px) {
+            .grid-layout { grid-template-columns: 1fr; }
+            .container { padding: 14px; }
+        }
+        .card {
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--gray-300);
+            margin-bottom: 14px;
+        }
+        .card-blue { background-color: var(--primary-light); border-color: #bfdbfe; }
+        .card-green { background-color: var(--success-light); border-color: #bbf7d0; }
+        .card-orange { background-color: var(--warning-light); border-color: #fde68a; }
+        .label {
+            display: block;
+            font-weight: 700;
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+        .input, .select, .textarea {
+            width: 100%;
+            padding: 9px 11px;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            font-size: 13.5px;
+            background: #fff;
+            margin-bottom: 8px;
+        }
+        .textarea { resize: vertical; min-height: 85px; }
+        .row-flex { display: flex; gap: 8px; align-items: center; margin-bottom: 8px; flex-wrap: wrap; }
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            padding: 8px 13px;
+            border: none;
+            border-radius: 8px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-size: 13px;
+            gap: 5px;
+        }
+        .btn:disabled { opacity: 0.55; cursor: not-allowed; }
+        .btn-blue { background: var(--primary); color: #fff; }
+        .btn-blue:hover:not(:disabled) { background: #1e3a8a; }
+        .btn-orange { background: #ea580c; color: #fff; }
+        .btn-orange:hover:not(:disabled) { background: #c2410c; }
+        .btn-gray { background: #64748b; color: #fff; }
+        .btn-gray:hover:not(:disabled) { background: #475569; }
+        .btn-green { background: var(--success); color: #fff; }
+        .btn-green:hover:not(:disabled) { background: #15803d; }
+        .btn-red {
+            background: var(--danger);
+            color: #fff;
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(220, 38, 38, 0.25);
+        }
+        .btn-red:hover:not(:disabled) { background: #b91c1c; }
+        .hint { font-size: 12px; color: var(--gray-600); margin-top: 2px; }
+
+        /* Quản lý danh sách lớp */
+        .class-bar {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+            background: #fff;
+            padding: 10px;
+            border-radius: 8px;
+            border: 1px solid #fde68a;
+            margin-bottom: 10px;
+        }
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+        .stat-box {
+            background: #fff;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            padding: 8px;
+            text-align: center;
+        }
+        .stat-num { font-size: 20px; font-weight: 800; color: var(--primary); }
+        .stat-label { font-size: 11px; font-weight: 700; color: var(--gray-600); text-transform: uppercase; }
+
+        .roster-list {
+            max-height: 410px;
+            overflow-y: auto;
+            padding-right: 4px;
+            margin-bottom: 12px;
+        }
+        .student-card {
+            background: #fff;
+            border: 1px solid var(--gray-300);
+            border-radius: 8px;
+            padding: 10px 12px;
+            margin-bottom: 8px;
+        }
+        .student-card.graded { border-color: var(--success); background: #f0fdf4; }
+        .student-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .sbd-badge {
+            background: var(--primary);
+            color: #fff;
+            font-weight: 700;
+            font-size: 12px;
+            padding: 2px 7px;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+        .student-name { font-weight: 700; font-size: 14.5px; color: #0f172a; }
+        .score-pill {
+            background: var(--danger-light);
+            color: var(--danger);
+            border: 1px solid var(--danger);
+            font-weight: 800;
+            padding: 2px 8px;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+        .thumb-row {
+            display: flex;
+            gap: 6px;
+            flex-wrap: wrap;
+            margin-top: 8px;
+            padding-top: 8px;
+            border-top: 1px dashed var(--gray-300);
+        }
+        .thumb-box {
+            position: relative;
+            width: 48px;
+            height: 48px;
+            border: 1px solid var(--gray-300);
+            border-radius: 4px;
+            background: #f8fafc;
+        }
+        .thumb-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            border-radius: 3px;
+        }
+        .thumb-del {
+            position: absolute;
+            top: -5px;
+            right: -5px;
+            width: 16px;
+            height: 16px;
+            border-radius: 50%;
+            background: var(--danger);
+            color: #fff;
+            border: none;
+            font-size: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 16px;
+        }
+
+        .status-box {
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 13.5px;
+            font-weight: 600;
+            margin: 12px 0;
+            display: none;
+            white-space: pre-wrap;
+        }
+        .status-info { background: #dbeafe; color: #1e40af; border: 1px solid #93c5fd; }
+        .status-error { background: #fee2e2; color: #b91c1c; border: 1px solid #fca5a5; }
+        .status-success { background: #dcfce7; color: #15803d; border: 1px solid #86efac; }
+
+        /* Vùng hiển thị Bản Chấm chuẩn mẫu Nguyễn Ngọc Hà */
+        .result-wrapper { display: none; margin-top: 24px; }
+        .toolbar {
+            background: #1e293b;
+            color: #fff;
+            padding: 12px 16px;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+        .exam-sheets-container {
+            background: #e2e8f0;
+            padding: 16px;
+            border-radius: 0 0 12px 12px;
+        }
+        .exam-paper {
+            background: #ffffff;
+            max-width: 840px;
+            margin: 0 auto 24px auto;
+            padding: 28px 34px;
+            border: 1px solid #cbd5e1;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+            font-family: "Times New Roman", Times, serif;
+            font-size: 12pt;
+            line-height: 1.45;
+            color: #0f172a;
+            position: relative;
+            page-break-after: always;
+        }
+        .exam-paper:last-child { page-break-after: auto; margin-bottom: 0; }
+        .exam-paper-header {
+            text-align: center;
+            border-bottom: 2px solid #0f172a;
+            padding-bottom: 12px;
+            margin-bottom: 14px;
+            position: relative;
+        }
+        .exam-paper-header h2 {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 14pt;
+            font-weight: bold;
+            text-transform: uppercase;
+            color: #0f172a;
+            margin: 0;
+        }
+        .exam-paper-header p { margin: 4px 0; font-size: 11.5pt; color: #0f172a; }
+        .score-circle {
+            position: absolute;
+            top: 4px;
+            right: 10px;
+            width: 68px;
+            height: 68px;
+            border: 3px solid #dc2626;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #dc2626;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            font-size: 21px;
+            transform: rotate(-10deg);
+            background: rgba(254, 242, 242, 0.4);
+        }
+
+        /* Đảm bảo Đề bài chữ đen, chỉ phần chấm và lời phê chữ đỏ */
+        .exam-body { color: #0f172a; }
+        .exam-body strong, .exam-body b { color: #0f172a; font-weight: bold; }
+        .exam-body h3 {
+            font-family: "Times New Roman", Times, serif;
+            font-size: 12pt;
+            font-weight: bold;
+            color: #0f172a;
+            margin: 14px 0 8px 0;
+            border-bottom: 1px solid #e2e8f0;
+            padding-bottom: 4px;
+        }
+        .teacher-ink {
+            color: #dc2626 !important;
+            font-weight: bold !important;
+            font-family: Arial, sans-serif;
+        }
+        .teacher-ink strong, .teacher-ink b {
+            color: #dc2626 !important;
+        }
+        .teacher-comment {
+            color: #dc2626 !important;
+            font-weight: bold;
+            font-family: Arial, sans-serif;
+            font-size: 10.5pt;
+            margin: 5px 0 10px 0;
+        }
+        .question-block { margin-top: 10px; color: #0f172a; }
+        .options-grid {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px 12px;
+            margin-left: 12px;
+            margin-top: 4px;
+        }
+        .option-item { width: 48%; color: #0f172a; }
+        .option-item.full-width { width: 100%; }
+        .tf-table { width: 100%; border-collapse: collapse; margin-top: 6px; font-size: 11pt; }
+        .tf-table th, .tf-table td { border: 1px solid #64748b; padding: 5px 8px; color: #0f172a; }
+        .tf-table th { background-color: #f1f5f9; text-align: center; font-weight: bold; }
+        .student-essay {
+            background-color: #f8fafc;
+            padding: 10px 12px;
+            border-left: 3px solid #94a3b8;
+            font-style: italic;
+            margin-top: 5px;
+            font-family: Arial, sans-serif;
+            font-size: 10.5pt;
+            color: #0f172a;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 12px;
+            font-family: Arial, sans-serif;
+            font-size: 10pt;
+            text-align: center;
+        }
+        .summary-table th, .summary-table td {
+            border: 1px solid #94a3b8;
+            padding: 7px 6px;
+        }
+        .summary-table th { background: #f8fafc; color: #0f172a; font-weight: bold; }
+
+        /* Ảnh bài làm thu nhỏ làm minh chứng cuối bản chấm */
+        .evidence-box {
+            margin-top: 16px;
+            padding-top: 10px;
+            border-top: 1px dashed #cbd5e1;
+            page-break-inside: avoid;
+        }
+        .evidence-title {
+            font-family: Arial, sans-serif;
+            font-size: 9.5pt;
+            font-weight: bold;
+            color: #475569;
+            margin-bottom: 6px;
+        }
+        .evidence-thumbs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+        .evidence-item {
+            width: 90px;
+            border: 1px solid #cbd5e1;
+            border-radius: 4px;
+            padding: 3px;
+            background: #f8fafc;
+            text-align: center;
+            font-family: Arial, sans-serif;
+            font-size: 8pt;
+            color: #475569;
+        }
+        .evidence-item img {
+            width: 100%;
+            height: 68px;
+            object-fit: cover;
+            border-radius: 2px;
+        }
+        .paper-footer {
+            margin-top: 16px;
+            padding-top: 6px;
+            border-top: 1px solid #e2e8f0;
+            display: flex;
+            justify-content: space-between;
+            font-family: Arial, sans-serif;
+            font-size: 8.5pt;
+            color: #64748b;
+        }
+
+        .footer-credit {
+            margin-top: 24px;
+            padding-top: 14px;
+            border-top: 2px solid var(--gray-200);
+            text-align: center;
+            font-weight: 800;
+            color: var(--primary);
+            font-size: 14.5px;
+        }
+
+        /* Modal dán nhanh danh sách hoặc đổi tên lớp */
+        .modal-backdrop {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.55);
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+            padding: 16px;
+        }
+        .modal-card {
+            background: #fff;
+            max-width: 520px;
+            width: 100%;
+            border-radius: 12px;
+            padding: 20px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.2);
+        }
+
+        @media print {
+            body { background: #fff; padding: 0; }
+            .container { box-shadow: none; border: none; padding: 0; max-width: 100%; }
+            .no-print { display: none !important; }
+            .result-wrapper { display: block !important; margin-top: 0; }
+            .exam-sheets-container { background: #fff; padding: 0; }
+            .exam-paper { border: none; box-shadow: none; margin: 0; max-width: 100%; padding: 12mm 15mm; }
+        }
+    </style>
+    <!-- Thư viện xlsx-js-style hỗ trợ căn giữa, in đậm tiêu đề và kẻ khung bảng Excel -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx-js-style@1.2.0/dist/xlsx.bundle.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js" defer></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/mammoth/1.4.21/mammoth.browser.min.js" defer></script>
+</head>
+<body>
+    <div class="container">
+        <div class="header no-print">
+            <h1>Trợ LýChấm Thi Như Giáo Viên Chấm Tay</h1>
+            <p>Hỗ trợ chấm trắc nghiệm & tự luận đa môn theo danh sách lớp — Xuất bản chấm bút đỏ & Bảng điểm Excel</p>
+        </div>
+
+        <div class="grid-layout no-print">
+            <!-- Cột Trái: Cấu hình API & Đề bài, Barem -->
+            <div>
+                <div class="card card-blue">
+                    <label class="label" style="color: #1e40af;">🔑 1. Khóa API Gemini & Mô hình AI</label>
+                    <div class="row-flex">
+                        <input type="password" id="apiKey" class="input" style="margin-bottom:0; flex:1;" placeholder="Dán API Key Gemini vào đây...">
+                        <button type="button" class="btn btn-blue" onclick="fetchModelsFromGoogle()">🔄 Dò AI</button>
+                    </div>
+                    <select id="aiModel" class="select" style="margin-bottom:4px;">
+                        <option value="auto">✨ Tự động chọn mô hình chuẩn nhất (Khuyên dùng)</option>
+                        <option value="gemini-2.5-flash">gemini-2.5-flash (Chuẩn, nhanh)</option>
+                        <option value="gemini-2.0-flash">gemini-2.0-flash</option>
+                    </select>
+                    <p class="hint">Hệ thống tự động lưu khóa API trên trình duyệt và chấm khách quan, không bịa đặt.</p>
+                </div>
+
+                <div class="card card-green" style="margin-bottom:0;">
+                    <label class="label" style="color: #15803d;">📄 2. Thông tin Đề kiểm tra & Barem - Đáp án</label>
+                    <input type="text" id="examTitleInput" class="input" value="ĐỀ KIỂM TRA GIỮA HỌC KỲ I – MÔN TIN HỌC 7" placeholder="Tiêu đề bài kiểm tra & Môn học...">
+                    <input type="text" id="examSubInput" class="input" value="Năm học 2026 – 2027 | Thời gian: 45 phút" placeholder="Năm học | Thời gian...">
+                    <input type="file" id="baremFiles" class="input" accept=".pdf,.doc,.docx,image/*" multiple>
+                    <textarea id="baremText" class="textarea" placeholder="Dán nội dung Đề bài, Đáp án và Hướng dẫn chấm vào đây (hoặc chọn file .docx, .pdf, ảnh ở trên)..."></textarea>
+                </div>
+            </div>
+
+            <!-- Cột Phải: Quản lý Danh sách Lớp & Nộp bài 1-8 ảnh/HS -->
+            <div>
+                <div class="card card-orange" style="margin-bottom:0;">
+                    <label class="label" style="color: #b45309;">👨‍🎓 3. Quản lý Danh sách Lớp & Nộp Bài Làm (1–8 ảnh/HS)</label>
+                    
+                    <!-- Thanh chọn lớp & tải file Excel (lấy đúng tên file Excel làm tên lớp) -->
+                    <div class="class-bar">
+                        <span style="font-size:13px; font-weight:700; color:#b45309;">Lớp:</span>
+                        <select id="classSelect" class="select" style="width:auto; min-width:150px; margin-bottom:0; font-weight:700;" onchange="switchClass(this.value)"></select>
+                        
+                        <input type="file" id="excelRosterInput" style="display:none;" accept=".xlsx,.xls,.csv" onchange="importExcelRoster(this.files[0])">
+                        <button type="button" class="btn btn-green" onclick="document.getElementById('excelRosterInput').click()">
+                            📥 Nạp Lớp từ Excel (.xlsx)
+                        </button>
+                        <button type="button" class="btn btn-blue" onclick="openQuickPasteModal()">📋 Dán Nhanh DS</button>
+                        <button type="button" class="btn btn-gray" onclick="openRenameClassModal()">✏️ Đổi Tên Lớp</button>
+                    </div>
+
+                    <!-- Thêm nhanh 1 học sinh thủ công -->
+                    <div class="row-flex">
+                        <input type="text" id="manualSbd" class="input" style="width:90px; margin-bottom:0;" placeholder="SBD (01)">
+                        <input type="text" id="manualName" class="input" style="flex:1; margin-bottom:0;" placeholder="Nhập Họ và tên học sinh...">
+                        <button type="button" class="btn btn-orange" onclick="addManualStudent()">➕ Thêm HS</button>
+                    </div>
+
+                    <div class="dashboard-stats">
+                        <div class="stat-box">
+                            <div class="stat-num" id="statTotal">0</div>
+                            <div class="stat-label">Sĩ số lớp</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-num" id="statSubmitted" style="color:#d97706;">0</div>
+                            <div class="stat-label">Đã nộp ảnh</div>
+                        </div>
+                        <div class="stat-box">
+                            <div class="stat-num" id="statGraded" style="color:#16a34a;">0</div>
+                            <div class="stat-label">Đã chấm xong</div>
+                        </div>
+                    </div>
+
+                    <!-- Danh sách học sinh và nút nộp bài -->
+                    <div id="rosterContainer" class="roster-list"></div>
+
+                    <!-- Input ẩn nhận từ 1-8 ảnh bài làm cho học sinh đang chọn -->
+                    <input type="file" id="studentFilesInput" style="display:none;" accept=".pdf,image/*" multiple onchange="handleStudentFilesSelected(this.files)">
+
+                    <button id="batchGradeBtn" type="button" class="btn btn-red" onclick="gradeAllSubmittedStudents()">
+                        ⚡ CHẤM LẦN LƯỢT CẢ LỚP & XUẤT BẢN CHẤM
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <div id="statusBox" class="status-box no-print"></div>
+
+        <!-- Vùng hiển thị Bản chấm & Xuất PDF / Excel -->
+        <div id="resultWrapper" class="result-wrapper">
+            <div class="toolbar no-print">
+                <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <span style="font-weight:800; font-size:15px;">📑 BẢN CHẤM & BẢNG ĐIỂM:</span>
+                    <select id="viewFilterSelect" class="select" style="width:auto; margin-bottom:0; padding:6px 10px; font-weight:700;" onchange="renderAllGradedPapers()">
+                        <option value="all">📚 Xem & Xuất cả lớp</option>
+                    </select>
+                </div>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    <button type="button" class="btn btn-green" onclick="exportFormattedExcel()">📊 Xuất Excel Bảng Điểm Lớp (.xlsx)</button>
+                    <button type="button" class="btn btn-orange" onclick="exportSelectedPDF()">📥 Tải PDF (Theo tùy chọn đang xem)</button>
+                    <button type="button" class="btn btn-blue" onclick="window.print()">🖨️ In / Lưu PDF Chuẩn A4</button>
+                </div>
+            </div>
+
+            <div id="examSheetsContainer" class="exam-sheets-container"></div>
+        </div>
+
+        <!-- Dòng cuối ghi đúng yêu cầu -->
+        <div class="footer-credit no-print">
+            Nguyễn Ngọc Đồng - Trường THCS Diễn Châu 2
+        </div>
+    </div>
+
+    <!-- Modal Dán nhanh danh sách học sinh -->
+    <div id="pasteModal" class="modal-backdrop">
+        <div class="modal-card">
+            <h3 style="color:#1e40af; margin-bottom:8px;">📋 Dán Nhanh Danh Sách Học Sinh</h3>
+            <p class="hint" style="margin-bottom:8px;">Mỗi học sinh 1 dòng (Định dạng: <b>SBD - Họ và tên</b> hoặc chỉ cần <b>Họ và tên</b>):</p>
+            <textarea id="pasteRosterTextarea" class="textarea" rows="6" placeholder="01 - Nguyễn Ngọc Hà&#10;02 - Trần Văn An&#10;03 - Lê Thị Bình"></textarea>
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+                <button type="button" class="btn btn-gray" onclick="closeQuickPasteModal()">Đóng</button>
+                <button type="button" class="btn btn-blue" onclick="confirmQuickPaste()">✅ Nạp Vào Lớp Hiện Tại</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal Đổi tên lớp -->
+    <div id="renameModal" class="modal-backdrop">
+        <div class="modal-card">
+            <h3 style="color:#1e40af; margin-bottom:8px;">✏️ Đổi Tên Lớp Quản Lý</h3>
+            <input type="text" id="newClassNameInput" class="input" placeholder="Nhập tên lớp (VD: 7H1)...">
+            <div style="display:flex; justify-content:flex-end; gap:8px; margin-top:8px;">
+                <button type="button" class="btn btn-gray" onclick="document.getElementById('renameModal').style.display='none'">Hủy</button>
+                <button type="button" class="btn btn-blue" onclick="confirmRenameClass()">💾 Lưu Tên Lớp</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Quản lý dữ liệu đa lớp
+        var classesData = {
+            "7H1": [
+                {
+                    sbd: "01",
+                    name: "Nguyễn Ngọc Hà",
+                    pages: [],
+                    gradedData: null
+                }
+            ]
+        };
+        var currentClassName = "7H1";
+        var activeStudentIndex = -1;
+
+        window.addEventListener('DOMContentLoaded', function() {
+            try {
+                var savedKey = localStorage.getItem('gemini_key_dc2_pro');
+                if (savedKey) document.getElementById('apiKey').value = savedKey;
+            } catch (e) {}
+            refreshClassSelect();
+            renderRoster();
+        });
+
+        function showStatus(msg, type) {
+            var box = document.getElementById('statusBox');
+            box.style.display = 'block';
+            box.className = 'status-box no-print ' + (type === 'error' ? 'status-error' : (type === 'success' ? 'status-success' : 'status-info'));
+            box.textContent = msg;
+        }
+
+        // Trích xuất văn bản tự động khi chọn file Word .docx ở mục Barem
+        document.getElementById('baremFiles').addEventListener('change', function(e) {
+            var files = e.target.files;
+            var textarea = document.getElementById('baremText');
+            for (var i = 0; i < files.length; i++) {
+                (function(file) {
+                    if (file.name.toLowerCase().endsWith('.docx') && typeof mammoth !== 'undefined') {
+                        var reader = new FileReader();
+                        reader.onload = function(evt) {
+                            mammoth.extractRawText({ arrayBuffer: evt.target.result }).then(function(res) {
+                                textarea.value += "\n" + res.value.trim() + "\n";
+                                showStatus("✅ Đã đọc nội dung đề bài & barem từ file Word: " + file.name, 'success');
+                            });
+                        };
+                        reader.readAsArrayBuffer(file);
+                    }
+                })(files[i]);
+            }
+        });
+
+        // ================= QUẢN LÝ LỚP & NHẬP EXCEL (LẤY TÊN FILE LÀM TÊN LỚP) =================
+        function refreshClassSelect() {
+            var sel = document.getElementById('classSelect');
+            sel.innerHTML = '';
+            var names = Object.keys(classesData);
+            for (var i = 0; i < names.length; i++) {
+                var opt = document.createElement('option');
+                opt.value = names[i];
+                opt.textContent = names[i] + ' (' + classesData[names[i]].length + ' HS)';
+                if (names[i] === currentClassName) opt.selected = true;
+                sel.appendChild(opt);
+            }
+        }
+
+        function switchClass(clsName) {
+            if (!classesData[clsName]) return;
+            currentClassName = clsName;
+            renderRoster();
+            renderAllGradedPapers();
+        }
+
+        function openRenameClassModal() {
+            document.getElementById('newClassNameInput').value = currentClassName;
+            document.getElementById('renameModal').style.display = 'flex';
+        }
+
+        function confirmRenameClass() {
+            var newName = document.getElementById('newClassNameInput').value.trim();
+            if (!newName) return;
+            if (newName !== currentClassName) {
+                classesData[newName] = classesData[currentClassName];
+                delete classesData[currentClassName];
+                currentClassName = newName;
+            }
+            document.getElementById('renameModal').style.display = 'none';
+            refreshClassSelect();
+            renderRoster();
+            renderAllGradedPapers();
+        }
+
+        // Lấy chính xác tên file Excel làm tên lớp quản lý
+        function importExcelRoster(file) {
+            if (!file) return;
+            if (typeof XLSX === 'undefined') {
+                showStatus("⚠️ Thư viện Excel đang tải, thầy vui lòng thử lại sau 2 giây.", 'error');
+                return;
+            }
+            var exactFileName = file.name.replace(/\.(xlsx|xls|csv)$/i, '').trim() || "Lop_Moi";
+
+            var reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    var data = new Uint8Array(e.target.result);
+                    var wb = XLSX.read(data, { type: 'array' });
+                    var firstSheet = wb.Sheets[wb.SheetNames[0]];
+                    var rows = XLSX.utils.sheet_to_json(firstSheet, { header: 1, defval: "" });
+
+                    var headerIdx = -1;
+                    var sbdCol = -1, nameCol = -1, lastNameCol = -1;
+
+                    for (var r = 0; r < Math.min(rows.length, 20); r++) {
+                        var row = rows[r];
+                        for (var c = 0; c < row.length; c++) {
+                            var cell = String(row[c] || "").toLowerCase().trim();
+                            if (cell.includes("họ và tên") || cell.includes("họ tên") || cell === "tên học sinh") {
+                                headerIdx = r;
+                                nameCol = c;
+                            } else if (cell === "họ đệm" || cell === "họ và đệm") {
+                                headerIdx = r;
+                                lastNameCol = c;
+                            } else if (cell === "tên" && lastNameCol !== -1) {
+                                nameCol = c;
+                            }
+                            if (cell === "sbd" || cell.includes("số báo danh") || cell === "mã hs" || cell === "stt") {
+                                if (sbdCol === -1) sbdCol = c;
+                            }
+                        }
+                        if (headerIdx !== -1 && nameCol !== -1) break;
+                    }
+
+                    var importedStudents = [];
+                    var startRow = headerIdx !== -1 ? headerIdx + 1 : 0;
+
+                    for (var i = startRow; i < rows.length; i++) {
+                        var line = rows[i];
+                        if (!line || line.length === 0) continue;
+
+                        var fullName = "";
+                        if (lastNameCol !== -1 && nameCol !== -1 && lastNameCol !== nameCol) {
+                            fullName = (String(line[lastNameCol] || "").trim() + " " + String(line[nameCol] || "").trim()).trim();
+                        } else if (nameCol !== -1) {
+                            fullName = String(line[nameCol] || "").trim();
+                        } else {
+                            // Tự dò cột có chứa tên người nếu file không có tiêu đề
+                            for (var k = 0; k < line.length; k++) {
+                                var val = String(line[k] || "").trim();
+                                if (val.length > 4 && isNaN(val)) { fullName = val; break; }
+                            }
+                        }
+
+                        if (!fullName || fullName.toLowerCase().includes("tổng số") || fullName.toLowerCase().includes("danh sách")) continue;
+
+                        var rawSbd = (sbdCol !== -1 && line[sbdCol] !== "") ? String(line[sbdCol]).trim() : String(importedStudents.length + 1).padStart(2, '0');
+                        importedStudents.push({
+                            sbd: rawSbd,
+                            name: fullName,
+                            pages: [],
+                            gradedData: null
+                        });
+                    }
+
+                    if (importedStudents.length === 0) {
+                        showStatus("⚠️ Không tìm thấy dòng tên học sinh nào trong file Excel. Thầy có thể dùng nút '📋 Dán Nhanh DS'.", 'error');
+                        return;
+                    }
+
+                    classesData[exactFileName] = importedStudents;
+                    currentClassName = exactFileName;
+                    refreshClassSelect();
+                    renderRoster();
+                    showStatus("✅ Đã nạp lớp [" + exactFileName + "] (đúng theo tên file Excel) với " + importedStudents.length + " học sinh!", 'success');
+                } catch (err) {
+                    showStatus("❌ Lỗi đọc file Excel: " + err.message, 'error');
+                }
+            };
+            reader.readAsArrayBuffer(file);
+            document.getElementById('excelRosterInput').value = '';
+        }
+
+        function openQuickPasteModal() {
+            document.getElementById('pasteModal').style.display = 'flex';
+        }
+        function closeQuickPasteModal() {
+            document.getElementById('pasteModal').style.display = 'none';
+        }
+        function confirmQuickPaste() {
+            var raw = document.getElementById('pasteRosterTextarea').value.trim();
+            if (!raw) return;
+            var lines = raw.split(/\r?\n/);
+            var list = classesData[currentClassName] || [];
+            for (var i = 0; i < lines.length; i++) {
+                var t = lines[i].trim();
+                if (!t) continue;
+                var parts = t.split(/[\t\-]+/);
+                var sbd = "", name = "";
+                if (parts.length >= 2 && parts[0].trim().length <= 8) {
+                    sbd = parts[0].trim();
+                    name = parts.slice(1).join(" ").trim();
+                } else {
+                    sbd = String(list.length + 1).padStart(2, '0');
+                    name = t;
+                }
+                if (name) list.push({ sbd: sbd, name: name, pages: [], gradedData: null });
+            }
+            classesData[currentClassName] = list;
+            closeQuickPasteModal();
+            refreshClassSelect();
+            renderRoster();
+            showStatus("✅ Đã thêm học sinh vào lớp " + currentClassName, 'success');
+        }
+
+        function addManualStudent() {
+            var list = classesData[currentClassName] || [];
+            var sbd = document.getElementById('manualSbd').value.trim() || String(list.length + 1).padStart(2, '0');
+            var name = document.getElementById('manualName').value.trim();
+            if (!name) {
+                showStatus("⚠️ Vui lòng nhập Họ và tên học sinh!", 'error');
+                return;
+            }
+            list.push({ sbd: sbd, name: name, pages: [], gradedData: null });
+            document.getElementById('manualSbd').value = '';
+            document.getElementById('manualName').value = '';
+            refreshClassSelect();
+            renderRoster();
+        }
+
+        function removeStudent(idx) {
+            classesData[currentClassName].splice(idx, 1);
+            refreshClassSelect();
+            renderRoster();
+            renderAllGradedPapers();
+        }
+
+        // ================= NỘP ẢNH BÀI LÀM (1-8 ẢNH/HS) & TẠO THUMBNAIL SIÊU NHẸ =================
+        function triggerUploadForStudent(idx) {
+            activeStudentIndex = idx;
+            document.getElementById('studentFilesInput').click();
+        }
+
+        function compressStudentImage(file) {
+            return new Promise(function(resolve, reject) {
+                var isPdf = file.name.toLowerCase().endsWith('.pdf') || file.type === 'application/pdf';
+                if (isPdf) {
+                    var r = new FileReader();
+                    r.onload = function() {
+                        resolve({
+                            name: file.name,
+                            mime: 'application/pdf',
+                            base64: r.result.split(',')[1],
+                            thumbUrl: null,
+                            isPdf: true
+                        });
+                    };
+                    r.onerror = reject;
+                    r.readAsDataURL(file);
+                    return;
+                }
+
+                var reader = new FileReader();
+                reader.onload = function(e) {
+                    var img = new Image();
+                    img.onload = function() {
+                        // Ảnh gửi AI đọc chữ rõ nét (max 1400px)
+                        var maxAi = 1400;
+                        var w = img.width, h = img.height;
+                        if (w > maxAi || h > maxAi) {
+                            if (w > h) { h = Math.round(h * (maxAi / w)); w = maxAi; }
+                            else { w = Math.round(w * (maxAi / h)); h = maxAi; }
+                        }
+                        var c1 = document.createElement('canvas');
+                        c1.width = w; c1.height = h;
+                        c1.getContext('2d').drawImage(img, 0, 0, w, h);
+                        var aiDataUrl = c1.toDataURL('image/jpeg', 0.82);
+
+                        // Ảnh thu nhỏ siêu nhẹ đính kèm cuối bản chấm (max 220px)
+                        var maxThumb = 220;
+                        var tw = img.width, th = img.height;
+                        if (tw > maxThumb || th > maxThumb) {
+                            if (tw > th) { th = Math.round(th * (maxThumb / tw)); tw = maxThumb; }
+                            else { tw = Math.round(tw * (maxThumb / th)); th = maxThumb; }
+                        }
+                        var c2 = document.createElement('canvas');
+                        c2.width = tw; c2.height = th;
+                        c2.getContext('2d').drawImage(img, 0, 0, tw, th);
+                        var smallThumbUrl = c2.toDataURL('image/jpeg', 0.65);
+
+                        resolve({
+                            name: file.name,
+                            mime: 'image/jpeg',
+                            base64: aiDataUrl.split(',')[1],
+                            thumbUrl: smallThumbUrl,
+                            isPdf: false
+                        });
+                    };
+                    img.onerror = reject;
+                    img.src = e.target.result;
+                };
+                reader.onerror = reject;
+                reader.readAsDataURL(file);
+            });
+        }
+
+        async function handleStudentFilesSelected(fileList) {
+            if (activeStudentIndex < 0 || !fileList || fileList.length === 0) return;
+            var stu = classesData[currentClassName][activeStudentIndex];
+            showStatus("⏳ Đang nạp ảnh bài làm cho học sinh " + stu.name + "...", 'info');
+
+            for (var i = 0; i < fileList.length; i++) {
+                if (stu.pages.length >= 8) break;
+                try {
+                    var pageObj = await compressStudentImage(fileList[i]);
+                    stu.pages.push(pageObj);
+                } catch (e) {}
+            }
+            document.getElementById('studentFilesInput').value = '';
+            renderRoster();
+            showStatus("✅ Đã nộp " + stu.pages.length + " trang bài làm cho HS: " + stu.name, 'success');
+        }
+
+        function removeStudentPage(stuIdx, pageIdx) {
+            classesData[currentClassName][stuIdx].pages.splice(pageIdx, 1);
+            renderRoster();
+        }
+
+        function renderRoster() {
+            var list = classesData[currentClassName] || [];
+            var container = document.getElementById('rosterContainer');
+            document.getElementById('statTotal').textContent = list.length;
+
+            var submitted = 0, graded = 0;
+            if (list.length === 0) {
+                container.innerHTML = '<div style="text-align:center; padding:24px; color:#9ca3af; border:2px dashed #cbd5e1; border-radius:8px;">Danh sách trống. Hãy bấm "📥 Nạp Lớp từ Excel" hoặc "📋 Dán Nhanh DS".</div>';
+                document.getElementById('statSubmitted').textContent = 0;
+                document.getElementById('statGraded').textContent = 0;
+                return;
+            }
+
+            var html = '';
+            for (var i = 0; i < list.length; i++) {
+                var s = list[i];
+                if (s.pages.length > 0) submitted++;
+                if (s.gradedData) graded++;
+
+                html += '<div class="student-card ' + (s.gradedData ? 'graded' : '') + '">';
+                html += '  <div class="student-top">';
+                html += '    <div><span class="sbd-badge">SBD: ' + s.sbd + '</span> <span class="student-name">' + s.name + '</span></div>';
+                html += '    <div style="display:flex; gap:6px; align-items:center;">';
+                if (s.gradedData) {
+                    html += '<span class="score-pill">' + s.gradedData.totalScore + ' đ</span>';
+                    html += '<button type="button" class="btn btn-orange" style="padding:4px 8px; font-size:11.5px;" onclick="exportSingleStudentPDF(' + i + ')">📥 PDF HS</button>';
+                }
+                html += '      <button type="button" class="btn btn-blue" style="padding:4px 9px; font-size:11.5px;" onclick="triggerUploadForStudent(' + i + ')">➕ Nộp Bài (' + s.pages.length + '/8)</button>';
+                if (s.pages.length > 0) {
+                    html += '  <button type="button" class="btn btn-green" style="padding:4px 9px; font-size:11.5px;" onclick="gradeSingleStudent(' + i + ')">⚡ Chấm</button>';
+                }
+                html += '      <button type="button" class="btn btn-gray" style="padding:4px 7px; font-size:11px;" onclick="removeStudent(' + i + ')">×</button>';
+                html += '    </div>';
+                html += '  </div>';
+
+                if (s.pages.length > 0) {
+                    html += '<div class="thumb-row">';
+                    for (var p = 0; p < s.pages.length; p++) {
+                        var pg = s.pages[p];
+                        html += '<div class="thumb-box">';
+                        if (pg.isPdf) {
+                            html += '<div style="font-size:10px; font-weight:bold; color:#1e40af; line-height:46px; text-align:center;">PDF</div>';
+                        } else {
+                            html += '<img src="' + pg.thumbUrl + '" title="Trang ' + (p + 1) + '">';
+                        }
+                        html += '<button type="button" class="thumb-del" onclick="removeStudentPage(' + i + ',' + p + ')">×</button>';
+                        html += '</div>';
+                    }
+                    html += '</div>';
+                }
+                html += '</div>';
+            }
+            container.innerHTML = html;
+            document.getElementById('statSubmitted').textContent = submitted;
+            document.getElementById('statGraded').textContent = graded;
+        }
+
+        // ================= KẾT NỐI GEMINI API & CHẤM CHÍNH XÁC (KHÔNG BỊA ĐẶT) =================
+        async function getAvailableModels(apiKey) {
+            try {
+                var res = await fetch('https://generativelanguage.googleapis.com/v1beta/models?key=' + encodeURIComponent(apiKey));
+                var data = await res.json();
+                if (!data.models) return [];
+                var skip = ['image', 'tts', 'audio', 'embedding', 'aqa', 'vision', 'robotics', 'learnlm', 'gemma', 'thinking'];
+                var valid = [];
+                for (var i = 0; i < data.models.length; i++) {
+                    var m = data.models[i];
+                    if (m.supportedGenerationMethods && m.supportedGenerationMethods.indexOf('generateContent') !== -1) {
+                        var name = m.name.replace('models/', '');
+                        if (name.indexOf('gemini') === 0 && !skip.some(function(w) { return name.indexOf(w) !== -1; })) {
+                            valid.push(name);
+                        }
+                    }
+                }
+                var pref = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash'];
+                valid.sort(function(a, b) {
+                    var ia = pref.indexOf(a), ib = pref.indexOf(b);
+                    if (ia === -1) ia = 99;
+                    if (ib === -1) ib = 99;
+                    return ia - ib;
+                });
+                return valid;
+            } catch (e) { return []; }
+        }
+
+        async function fetchModelsFromGoogle() {
+            var apiKey = document.getElementById('apiKey').value.trim();
+            if (!apiKey) { showStatus("⚠️ Vui lòng nhập API Key!", 'error'); return; }
+            try { localStorage.setItem('gemini_key_dc2_pro', apiKey); } catch (e) {}
+            showStatus("⏳ Đang kiểm tra khóa API và dò mô hình...", 'info');
+            var models = await getAvailableModels(apiKey);
+            if (models.length > 0) {
+                var sel = document.getElementById('aiModel');
+                sel.innerHTML = '<option value="auto">✨ Tự động chọn (' + models[0] + ')</option>';
+                for (var i = 0; i < models.length; i++) {
+                    var opt = document.createElement('option');
+                    opt.value = models[i];
+                    opt.textContent = models[i];
+                    sel.appendChild(opt);
+                }
+                showStatus("✅ Kết nối thành công " + models.length + " mô hình AI.", 'success');
+            } else {
+                showStatus("⚠️ Không tải được danh sách mô hình. Vui lòng kiểm tra lại API Key.", 'error');
+            }
+        }
+
+        async function buildBaremParts() {
+            var baremText = document.getElementById('baremText').value.trim();
+            var baremFiles = document.getElementById('baremFiles').files;
+            var parts = [{ text: "ĐỀ BÀI & HƯỚNG DẪN CHẤM (BAREM):\n" + (baremText || "(Dựa theo tệp đề bài đính kèm)") }];
+            for (var i = 0; i < baremFiles.length; i++) {
+                var bf = baremFiles[i];
+                var bName = bf.name.toLowerCase();
+                if (bf.type.indexOf('image/') === 0 || bName.endsWith('.pdf')) {
+                    var item = await compressStudentImage(bf);
+                    parts.push({ inline_data: { mime_type: item.mime, data: item.base64 } });
+                }
+            }
+            return parts;
+        }
+
+        async function gradeOneStudentWithAI(stu, baremParts, candidateModels, apiKey) {
+            var sysPrompt =
+                "Bạn là Giám khảo chấm thi nghiêm túc. Nhiệm vụ: Chấm chính xác toàn bộ " + stu.pages.length + " ảnh bài làm của học sinh " + stu.name + " (SBD: " + stu.sbd + ").\n" +
+                "NGUYÊN TẮC BẮT BUỘC (CHỐNG BỊA ĐẶT):\n" +
+                "1. Chỉ chấm đúng những gì học sinh thực sự viết/khoanh trên các ảnh bài làm. Câu nào bỏ trống ghi rõ '[Học sinh bỏ trống -> 0đ]', tuyệt đối KHÔNG tự bịa thêm câu trả lời.\n" +
+                "2. Định dạng HTML xuất ra phải tuân thủ nghiêm ngặt:\n" +
+                "   - Phần đề bài, nội dung câu hỏi và các phương án A, B, C, D giữ chữ màu đen bình thường.\n" +
+                "   - MỌI DẤU CHẤM (✔, ✘), ĐIỂM THÀNH PHẦN ([3.0 / 3.0 đ], ✔ 0.25, ✔ 0.5) và LỜI PHÊ (=> Nhận xét: ...) BẮT BUỘC bọc trong thẻ <span class=\"teacher-ink\">...</span> hoặc <div class=\"teacher-comment\">...</div> để hiển thị mực đỏ.\n\n" +
+                "Hãy trả về kết quả theo đúng cấu trúc đánh dấu sau:\n" +
+                "SCORE_MC: [Điểm TN nhiều lựa chọn, VD: 3.0]\n" +
+                "SCORE_TF: [Điểm TN Đúng/Sai, VD: 3.0]\n" +
+                "SCORE_SA: [Điểm Trả lời ngắn, VD: 0]\n" +
+                "SCORE_ESSAY: [Điểm Tự luận, VD: 3.5]\n" +
+                "SCORE_TOTAL: [Tổng điểm cộng gộp, VD: 9.5]\n" +
+                "CHECK_NOTE: [Câu sai hoặc thiếu ý cần lưu ý, VD: Câu 19 (Thiếu ý giải thích)]\n" +
+                "===HTML_START===\n" +
+                "(Viết mã HTML phần nội dung bài chấm gồm:\n" +
+                "- <h3>PHẦN I. TRẮC NGHIỆM NHIỀU LỰA CHỌN ... <span class=\"teacher-ink\" style=\"float:right;\">[... đ]</span></h3>\n" +
+                "  Mỗi câu dùng <div class=\"question-block\"><strong>Câu 1. ...</strong><div class=\"options-grid\"><div class=\"option-item\"><span class=\"teacher-ink\">✔</span> A. ...</div>...</div></div>\n" +
+                "- <h3>PHẦN II. TRẮC NGHIỆM ĐÚNG/SAI ... <span class=\"teacher-ink\" style=\"float:right;\">[... đ]</span></h3>\n" +
+                "  Dùng bảng <table class=\"tf-table\"> có cột Nội dung | Đúng | Sai, chỗ học sinh đánh dấu ghi [X] kèm <span class=\"teacher-ink\">✔</span> hoặc <span class=\"teacher-ink\">✘ (Đáp án: ...)</span>\n" +
+                "- <h3>PHẦN III. TỰ LUẬN ... <span class=\"teacher-ink\" style=\"float:right;\">[... đ]</span></h3>\n" +
+                "  Mỗi câu ghi đề bài chữ đen, trích dẫn nguyên văn bài làm học sinh trong <div class=\"student-essay\"><p>- Ý học sinh viết <span class=\"teacher-ink\">✔ 0.25</span></p></div> và lời phê mực đỏ <div class=\"teacher-comment\">=> Nhận xét: ... [Điểm câu]</div>\n" +
+                ")\n" +
+                "===HTML_END===";
+
+            var parts = [{ text: sysPrompt }].concat(baremParts);
+            for (var p = 0; p < stu.pages.length; p++) {
+                parts.push({ text: ">>> ẢNH BÀI LÀM TRANG SỐ " + (p + 1) + " / " + stu.pages.length + " CỦA HỌC SINH " + stu.name + ":" });
+                parts.push({ inline_data: { mime_type: stu.pages[p].mime, data: stu.pages[p].base64 } });
+            }
+
+            var payload = JSON.stringify({
+                contents: [{ role: "user", parts: parts }],
+                generationConfig: { temperature: 0.0 }
+            });
+
+            var rawText = null;
+            var lastErr = "";
+            for (var i = 0; i < candidateModels.length; i++) {
+                var model = candidateModels[i];
+                try {
+                    var res = await fetch('https://generativelanguage.googleapis.com/v1beta/models/' + model + ':generateContent?key=' + encodeURIComponent(apiKey), {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: payload
+                    });
+                    var data = await res.json();
+                    if (data.candidates && data.candidates[0] && data.candidates[0].content) {
+                        rawText = data.candidates[0].content.parts[0].text;
+                        break;
+                    } else if (data.error) {
+                        lastErr = data.error.message;
+                    }
+                } catch (e) { lastErr = e.message; }
+            }
+
+            if (!rawText) throw new Error(lastErr || "Không nhận được phản hồi từ AI.");
+
+            function extractTag(tag, defVal) {
+                var reg = new RegExp(tag + "\\s*:\\s*([^\\n\\r]+)", "i");
+                var m = rawText.match(reg);
+                return m ? m[1].trim() : defVal;
+            }
+
+            var htmlContent = rawText;
+            var startIdx = rawText.indexOf("===HTML_START===");
+            var endIdx = rawText.indexOf("===HTML_END===");
+            if (startIdx !== -1) {
+                htmlContent = rawText.substring(startIdx + 16, endIdx !== -1 ? endIdx : rawText.length).trim();
+            }
+            htmlContent = htmlContent.replace(/^```html/i, '').replace(/```$/i, '').trim();
+
+            stu.gradedData = {
+                mcScore: extractTag("SCORE_MC", "0"),
+                tfScore: extractTag("SCORE_TF", "0"),
+                saScore: extractTag("SCORE_SA", "0"),
+                essayScore: extractTag("SCORE_ESSAY", "0"),
+                totalScore: extractTag("SCORE_TOTAL", "0"),
+                checkNote: extractTag("CHECK_NOTE", "-"),
+                bodyHtml: htmlContent
+            };
+        }
+
+        async function gradeSingleStudent(idx) {
+            var apiKey = document.getElementById('apiKey').value.trim();
+            if (!apiKey) { showStatus("⚠️ Vui lòng nhập Khóa API Gemini ở mục 1!", 'error'); return; }
+            var stu = classesData[currentClassName][idx];
+            if (!stu || stu.pages.length === 0) {
+                showStatus("⚠️ Học sinh này chưa nộp ảnh bài làm!", 'error');
+                return;
+            }
+
+            try {
+                showStatus("⏳ Đang chấm bài học sinh: " + stu.name + " (" + stu.pages.length + " ảnh)...", 'info');
+                var baremParts = await buildBaremParts();
+                var selectedModel = document.getElementById('aiModel').value;
+                var models = selectedModel !== 'auto' ? [selectedModel] : [];
+                var live = await getAvailableModels(apiKey);
+                live.forEach(function(m) { if (models.indexOf(m) === -1) models.push(m); });
+                ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'].forEach(function(m) {
+                    if (models.indexOf(m) === -1) models.push(m);
+                });
+
+                await gradeOneStudentWithAI(stu, baremParts, models, apiKey);
+                renderRoster();
+                renderAllGradedPapers();
+                showStatus("✅ Đã chấm xong bài của " + stu.name + " — Tổng điểm: " + stu.gradedData.totalScore, 'success');
+            } catch (err) {
+                showStatus("❌ Lỗi khi chấm: " + err.message, 'error');
+            }
+        }
+
+        async function gradeAllSubmittedStudents() {
+            var apiKey = document.getElementById('apiKey').value.trim();
+            if (!apiKey) { showStatus("⚠️ Vui lòng nhập Khóa API Gemini ở mục 1!", 'error'); return; }
+
+            var list = classesData[currentClassName] || [];
+            var queue = [];
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].pages.length > 0) queue.push(i);
+            }
+            if (queue.length === 0) {
+                showStatus("⚠️ Chưa có học sinh nào nộp ảnh bài làm trong lớp " + currentClassName + "!", 'error');
+                return;
+            }
+
+            var btn = document.getElementById('batchGradeBtn');
+            btn.disabled = true;
+            try {
+                var baremParts = await buildBaremParts();
+                var selectedModel = document.getElementById('aiModel').value;
+                var models = selectedModel !== 'auto' ? [selectedModel] : [];
+                var live = await getAvailableModels(apiKey);
+                live.forEach(function(m) { if (models.indexOf(m) === -1) models.push(m); });
+                ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash'].forEach(function(m) {
+                    if (models.indexOf(m) === -1) models.push(m);
+                });
+
+                for (var k = 0; k < queue.length; k++) {
+                    var stu = list[queue[k]];
+                    showStatus("⏳ [" + (k + 1) + "/" + queue.length + "] Đang chấm HS: " + stu.name + " (SBD: " + stu.sbd + ")...", 'info');
+                    await gradeOneStudentWithAI(stu, baremParts, models, apiKey);
+                    renderRoster();
+                    renderAllGradedPapers();
+                    await new Promise(function(r) { setTimeout(r, 900); });
+                }
+                showStatus("✅ Đã chấm hoàn tất " + queue.length + " học sinh lớp " + currentClassName + "!", 'success');
+            } catch (err) {
+                showStatus("❌ Lỗi trong quá trình chấm: " + err.message, 'error');
+            } finally {
+                btn.disabled = false;
+            }
+        }
+
+        // ================= HIỂN THỊ BẢN CHẤM CHUẨN MẪU (KHÔNG GHI TÊN TRƯỜNG) =================
+        function buildPaperHtmlForStudent(stu) {
+            var examTitle = document.getElementById('examTitleInput').value.trim() || "ĐỀ KIỂM TRA ĐỊNH KỲ";
+            var examSub = document.getElementById('examSubInput').value.trim() || "Thời gian: 45 phút";
+            var g = stu.gradedData;
+            var now = new Date();
+            var dateStr = "Ngày " + String(now.getDate()).padStart(2, '0') + " tháng " + String(now.getMonth() + 1).padStart(2, '0') + " năm " + now.getFullYear();
+
+            var thumbsHtml = '';
+            for (var i = 0; i < stu.pages.length; i++) {
+                var pg = stu.pages[i];
+                if (!pg.isPdf && pg.thumbUrl) {
+                    thumbsHtml += '<div class="evidence-item"><img src="' + pg.thumbUrl + '" alt="Trang ' + (i + 1) + '"><div>Trang ' + (i + 1) + '</div></div>';
+                } else {
+                    thumbsHtml += '<div class="evidence-item"><div style="height:68px;line-height:68px;font-weight:bold;color:#1e40af;">PDF #' + (i + 1) + '</div><div>Trang ' + (i + 1) + '</div></div>';
+                }
+            }
+
+            return (
+                '<div class="exam-paper" id="paper-stu-' + stu.sbd + '">' +
+                '  <div class="exam-paper-header">' +
+                '    <h2>' + examTitle + '</h2>' +
+                '    <p>' + examSub + '</p>' +
+                '    <p style="margin-top:8px; text-align:left; font-size:12pt;">' +
+                '      Họ và tên: <strong>' + stu.name + '</strong>' +
+                '      <span style="display:inline-block; width:36px;"></span> SBD: <strong>' + stu.sbd + '</strong>' +
+                '      <span style="display:inline-block; width:36px;"></span> Lớp: <strong>' + currentClassName + '</strong>' +
+                '    </p>' +
+                '    <div class="score-circle"><span>' + g.totalScore + '</span></div>' +
+                '  </div>' +
+                '  <div class="exam-body">' + g.bodyHtml + '</div>' +
+                '  <div style="margin-top:24px; border-top:2px solid #cbd5e1; padding-top:12px; page-break-inside:avoid;">' +
+                '    <h3 style="text-align:center; border:none; margin:0; font-size:12.5pt;">BẢNG TỔNG HỢP KẾT QUẢ ĐÁNH GIÁ (Dành cho Giáo viên)</h3>' +
+                '    <p style="text-align:center; font-size:9.5pt; color:#64748b; margin-top:2px;">Dữ liệu trích xuất tự động từ Bản sao đã chấm</p>' +
+                '    <table class="summary-table">' +
+                '      <thead>' +
+                '        <tr>' +
+                '          <th>Tên / Mã phách</th>' +
+                '          <th>Mã đề</th>' +
+                '          <th>TN<br>(Nhiều LC)</th>' +
+                '          <th>TN<br>(Đúng/Sai)</th>' +
+                '          <th>Trả lời ngắn</th>' +
+                '          <th>Tự luận</th>' +
+                '          <th style="background:#fef2f2; color:#dc2626;">Tổng điểm</th>' +
+                '          <th>Câu cần kiểm tra</th>' +
+                '        </tr>' +
+                '      </thead>' +
+                '      <tbody>' +
+                '        <tr>' +
+                '          <td style="text-align:left; font-weight:bold;">' + stu.name + ' (' + currentClassName + ')</td>' +
+                '          <td>-</td>' +
+                '          <td>' + g.mcScore + '</td>' +
+                '          <td>' + g.tfScore + '</td>' +
+                '          <td>' + g.saScore + '</td>' +
+                '          <td>' + g.essayScore + '</td>' +
+                '          <td style="font-weight:bold; font-size:13pt; color:#dc2626;">' + g.totalScore + '</td>' +
+                '          <td style="text-align:left; color:#dc2626;">' + g.checkNote + '</td>' +
+                '        </tr>' +
+                '      </tbody>' +
+                '    </table>' +
+                '  </div>' +
+                (thumbsHtml ? (
+                '  <div class="evidence-box">' +
+                '    <div class="evidence-title">📎 Minh chứng bài làm của học sinh (' + stu.pages.length + ' ảnh thu nhỏ):</div>' +
+                '    <div class="evidence-thumbs">' + thumbsHtml + '</div>' +
+                '  </div>'
+                ) : '') +
+                '  <div style="display:flex; justify-content:flex-end; margin-top:20px; padding-right:24px; page-break-inside:avoid;">' +
+                '    <div style="text-align:center;">' +
+                '      <p style="margin:0 0 42px 0; font-style:italic; font-size:11pt;">' + dateStr + '</p>' +
+                '      <p style="margin:0; font-weight:bold; font-size:11.5pt;">Giáo viên bộ môn</p>' +
+                '    </div>' +
+                '  </div>' +
+                '  <div class="paper-footer">' +
+                '    <span>Bản sao điện tử - Đã chấm điểm</span>' +
+                '    <span>Học sinh: ' + stu.name + ' (Lớp ' + currentClassName + ')</span>' +
+                '  </div>' +
+                '</div>'
+            );
+        }
+
+        function renderAllGradedPapers() {
+            var list = classesData[currentClassName] || [];
+            var filterSel = document.getElementById('viewFilterSelect');
+            var currentVal = filterSel.value || 'all';
+
+            filterSel.innerHTML = '<option value="all">📚 Xem & Xuất cả lớp (' + currentClassName + ')</option>';
+            var gradedList = [];
+            for (var i = 0; i < list.length; i++) {
+                if (list[i].gradedData) {
+                    gradedList.push({ idx: i, stu: list[i] });
+                    var opt = document.createElement('option');
+                    opt.value = String(i);
+                    opt.textContent = '👤 SBD ' + list[i].sbd + ' - ' + list[i].name + ' (' + list[i].gradedData.totalScore + 'đ)';
+                    if (String(i) === currentVal) opt.selected = true;
+                    filterSel.appendChild(opt);
+                }
+            }
+
+            var wrapper = document.getElementById('resultWrapper');
+            var container = document.getElementById('examSheetsContainer');
+            if (gradedList.length === 0) {
+                wrapper.style.display = 'none';
+                container.innerHTML = '';
+                return;
+            }
+
+            wrapper.style.display = 'block';
+            var html = '';
+            var chosen = filterSel.value;
+            for (var j = 0; j < gradedList.length; j++) {
+                if (chosen === 'all' || chosen === String(gradedList[j].idx)) {
+                    html += buildPaperHtmlForStudent(gradedList[j].stu);
+                }
+            }
+            container.innerHTML = html;
+        }
+
+        // ================= XUẤT PDF TỪNG HỌC SINH HOẶC CẢ LỚP =================
+        function exportSingleStudentPDF(stuIdx) {
+            var filterSel = document.getElementById('viewFilterSelect');
+            filterSel.value = String(stuIdx);
+            renderAllGradedPapers();
+            exportSelectedPDF();
+        }
+
+        function exportSelectedPDF() {
+            var container = document.getElementById('examSheetsContainer');
+            var filterVal = document.getElementById('viewFilterSelect').value;
+            var fileName = 'Ban_Cham_' + currentClassName + '.pdf';
+            if (filterVal !== 'all' && classesData[currentClassName][Number(filterVal)]) {
+                var st = classesData[currentClassName][Number(filterVal)];
+                fileName = 'Ban_Cham_' + currentClassName + '_' + st.sbd + '_' + st.name.replace(/\s+/g, '_') + '.pdf';
+            }
+
+            if (typeof html2pdf !== 'undefined') {
+                showStatus("⏳ Đang xuất file PDF: " + fileName + "...", 'info');
+                html2pdf().set({
+                    margin: [0.3, 0.3, 0.3, 0.3],
+                    filename: fileName,
+                    image: { type: 'jpeg', quality: 0.92 },
+                    html2canvas: { scale: 2, useCORS: true, scrollY: 0 },
+                    jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+                }).from(container).save().then(function() {
+                    showStatus("✅ Đã tải xuống file PDF: " + fileName, 'success');
+                });
+            } else {
+                window.print();
+            }
+        }
+
+        // ================= XUẤT EXCEL CĂN GIỮA, TIÊU ĐỀ IN ĐẬM, KẺ KHUNG BẢNG =================
+        function exportFormattedExcel() {
+            if (typeof XLSX === 'undefined') {
+                showStatus("⚠️ Thư viện Excel chưa tải xong!", 'error');
+                return;
+            }
+
+            var wb = XLSX.utils.book_new();
+            var classNames = Object.keys(classesData);
+
+            // Định dạng chuẩn: Kẻ khung bảng đầy đủ, căn giữa dữ liệu, tiêu đề in đậm
+            var borderThin = {
+                top: { style: "thin", color: { rgb: "000000" } },
+                bottom: { style: "thin", color: { rgb: "000000" } },
+                left: { style: "thin", color: { rgb: "000000" } },
+                right: { style: "thin", color: { rgb: "000000" } }
+            };
+
+            var titleStyle = {
+                font: { name: "Arial", sz: 14, bold: true, color: { rgb: "1E40AF" } },
+                alignment: { horizontal: "center", vertical: "center" }
+            };
+
+            var subTitleStyle = {
+                font: { name: "Arial", sz: 11, italic: true },
+                alignment: { horizontal: "center", vertical: "center" }
+            };
+
+            var headerStyle = {
+                font: { name: "Arial", sz: 11, bold: true, color: { rgb: "000000" } },
+                fill: { fgColor: { rgb: "E2E8F0" } },
+                alignment: { horizontal: "center", vertical: "center", wrapText: true },
+                border: borderThin
+            };
+
+            var cellCenterStyle = {
+                font: { name: "Arial", sz: 11 },
+                alignment: { horizontal: "center", vertical: "center" },
+                border: borderThin
+            };
+
+            var cellBoldCenterStyle = {
+                font: { name: "Arial", sz: 11, bold: true, color: { rgb: "DC2626" } },
+                alignment: { horizontal: "center", vertical: "center" },
+                border: borderThin
+            };
+
+            for (var c = 0; c < classNames.length; c++) {
+                var cls = classNames[c];
+                var list = classesData[cls] || [];
+                var examTitle = document.getElementById('examTitleInput').value.trim() || "BẢNG TỔNG HỢP KẾT QUẢ CHẤM THI";
+
+                var aoa = [
+                    ["BẢNG TỔNG HỢP ĐIỂM KHẢO THÍ - LỚP " + cls.toUpperCase()],
+                    [examTitle],
+                    [],
+                    ["STT", "SBD", "Họ và tên", "Lớp", "TN Nhiều LC", "TN Đúng/Sai", "Trả lời ngắn", "Tự luận", "Tổng điểm", "Câu cần kiểm tra"]
+                ];
+
+                for (var i = 0; i < list.length; i++) {
+                    var s = list[i];
+                    var g = s.gradedData;
+                    aoa.push([
+                        i + 1,
+                        s.sbd,
+                        s.name,
+                        cls,
+                        g ? g.mcScore : "-",
+                        g ? g.tfScore : "-",
+                        g ? g.saScore : "-",
+                        g ? g.essayScore : "-",
+                        g ? g.totalScore : "Chưa chấm",
+                        g ? g.checkNote : "-"
+                    ]);
+                }
+
+                var ws = XLSX.utils.aoa_to_sheet(aoa);
+
+                // Gộp ô cho 2 dòng tiêu đề đầu tiên và căn giữa
+                ws['!merges'] = [
+                    { s: { r: 0, col: 0 }, e: { r: 0, col: 9 }, c: 0 },
+                    { s: { r: 1, col: 0 }, e: { r: 1, col: 9 }, c: 0 }
+                ];
+                ws['!merges'] = [
+                    { s: { r: 0, c: 0 }, e: { r: 0, c: 9 } },
+                    { s: { r: 1, c: 0 }, e: { r: 1, c: 9 } }
+                ];
+
+                // Độ rộng các cột
+                ws['!cols'] = [
+                    { wch: 7 },  // STT
+                    { wch: 10 }, // SBD
+                    { wch: 26 }, // Họ và tên
+                    { wch: 10 }, // Lớp
+                    { wch: 14 }, // TN Nhiều LC
+                    { wch: 14 }, // TN Đúng/Sai
+                    { wch: 14 }, // Trả lời ngắn
+                    { wch: 12 }, // Tự luận
+                    { wch: 14 }, // Tổng điểm
+                    { wch: 28 }  // Câu cần kiểm tra
+                ];
+
+                // Áp dụng định dạng in đậm, căn giữa và kẻ khung bảng cho từng ô
+                var totalRows = aoa.length;
+                for (var r = 0; r < totalRows; r++) {
+                    for (var col = 0; col < 10; col++) {
+                        var cellRef = XLSX.utils.encode_cell({ r: r, c: col });
+                        if (!ws[cellRef]) {
+                            ws[cellRef] = { t: 's', v: '' };
+                        }
+                        if (r === 0) {
+                            ws[cellRef].s = titleStyle;
+                        } else if (r === 1) {
+                            ws[cellRef].s = subTitleStyle;
+                        } else if (r === 3) {
+                            ws[cellRef].s = headerStyle;
+                        } else if (r > 3) {
+                            ws[cellRef].s = (col === 8) ? cellBoldCenterStyle : cellCenterStyle;
+                        }
+                    }
+                }
+
+                var safeSheetName = cls.substring(0, 30).replace(/[\\/?*\[\]:]/g, "_");
+                XLSX.utils.book_append_sheet(wb, ws, safeSheetName);
+            }
+
+            var outName = "Bang_Diem_Tong_Hop_" + currentClassName + ".xlsx";
+            XLSX.writeFile(wb, outName);
+            showStatus("✅ Đã xuất file Excel kẻ khung, tiêu đề in đậm và căn giữa: " + outName, 'success');
+        }
+    </script>
+</body>
+</html>
